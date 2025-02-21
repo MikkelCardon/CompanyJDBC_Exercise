@@ -99,23 +99,48 @@ public class ConnictionToDB {
     public static String getCompanyForEmp(Employee emp) {
 
         String Cname = "";
+        Statement statement = null;
         try{
-            Statement statement = minConnection.createStatement();
+            statement = minConnection.createStatement();
             ResultSet res = statement.executeQuery("EXEC getCompanyNameByEmployee " + emp.getEmployeeId());
             res.next();
-            Cname = res.getString(1);
+            Cname = res.getString(6);
 
-        }catch (SQLException e){
+        }
+        catch (SQLException e){
             throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if (statement != null) statement.close();  // Close the statement
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return Cname;
     }
     //return id of company for employee
     public static int getCompanyIdForEmp(Employee emp) {
-        int id = 9999;
-        //TODO
-        return id;
+        Statement statement = null;
+        int cID = -1;
+        try{
+            statement = minConnection.createStatement();
+            ResultSet res = statement.executeQuery("EXEC getCompanyNameByEmployee " + emp.getEmployeeId());
+            res.next();
+            cID = res.getInt(5);
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if (statement != null) statement.close();  // Close the statement
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return cID;
     }
 
     public static void createCompany(String name, int hours) {
