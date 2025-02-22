@@ -186,10 +186,12 @@ public class ConnictionToDB {
     }
 
 
-    public static void updateCompany(String name, int hours){
+    public static void updateCompany(String name, int hours, int id){
         Statement statement = null;
         try{
-            statement.executeUpdate("UPDATE ");
+            statement = minConnection.createStatement();
+            statement.executeUpdate("UPDATE company SET navn = " + name +", timerPrUge = "+ hours +" WHERE companyId = " + id);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -201,12 +203,47 @@ public class ConnictionToDB {
         }
     }
 
+    //ToDo: Tilføj exception hvis compID ikke findes.
     public static void updateEmployee(String name, int wage, int empId, int compID){
-        //TODO
+        Statement statement = null;
+        try{
+            statement = minConnection.createStatement();
+                statement.executeUpdate("UPDATE employee SET navn = " + name +", loen = "+ wage +", companyID = "+ compID +" WHERE employeeId = " + empId);
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
+    //ToDo: Tilføj exception hvis compID ikke findes.
     public static void addEmployee(String name, int wage, int compId){
-       //TODO
+        PreparedStatement preparedStatement = null;
+        try{
+            preparedStatement = minConnection.prepareStatement("INSERT INTO employee (navn, loen, companyID) VALUES (?,?,?)");
+            preparedStatement.clearParameters();
+
+            preparedStatement.setString(1,name);
+            preparedStatement.setInt(2, wage);
+            preparedStatement.setInt(3, compId);
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (preparedStatement != null) preparedStatement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static void removeEmployee(Employee emp) {
