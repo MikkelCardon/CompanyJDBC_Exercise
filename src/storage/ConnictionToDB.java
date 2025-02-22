@@ -105,7 +105,7 @@ public class ConnictionToDB {
             ResultSet res = statement.executeQuery("EXEC getCompanyNameByEmployee " + emp.getEmployeeId());
             res.next();
             Cname = res.getString(6);
-
+            //ToDo: Index 6 er ikke særlig sigende
         }
         catch (SQLException e){
             throw new RuntimeException(e);
@@ -129,6 +129,7 @@ public class ConnictionToDB {
             ResultSet res = statement.executeQuery("EXEC getCompanyNameByEmployee " + emp.getEmployeeId());
             res.next();
             cID = res.getInt(5);
+            //ToDo: Index 6 er ikke særlig sigende
         }
         catch (SQLException e){
             throw new RuntimeException(e);
@@ -166,9 +167,9 @@ public class ConnictionToDB {
 
         try{
             statement = minConnection.createStatement();
-            ResultSet res = statement.executeQuery("SELECT timerPrUge FROM employee WHERE employeeId = " + empId);
+            ResultSet res = statement.executeQuery("EXEC getCompanyNameByEmployee " + empId);
             res.next();
-            hoursrWeek = res.getInt(1);
+            hoursrWeek = res.getInt("timerPrUge"); //Er mere sigende :)
 
         }
         catch (SQLException e){
@@ -184,8 +185,20 @@ public class ConnictionToDB {
         return hoursrWeek;
     }
 
-    public static void updateCompany(String name, int hours, int compId){
-        //TODO
+
+    public static void updateCompany(String name, int hours){
+        Statement statement = null;
+        try{
+            statement.executeUpdate("UPDATE ");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static void updateEmployee(String name, int wage, int empId, int compID){
