@@ -144,12 +144,43 @@ public class ConnictionToDB {
     }
 
     public static void createCompany(String name, int hours) {
-        //TODO
+        Statement statement = null;
+        try{
+            statement = minConnection.createStatement();
+            statement.executeUpdate("INSERT INTO company (navn, timerPrUger) VALUES ("+name+", "+hours+")");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static int getHoursPrWeek(int empId){
         int hoursrWeek = 0;
-       //TODO
+
+        Statement statement = null;
+
+        try{
+            statement = minConnection.createStatement();
+            ResultSet res = statement.executeQuery("SELECT timerPrUge FROM employee WHERE employeeId = " + empId);
+            res.next();
+            hoursrWeek = res.getInt(1);
+
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if (statement != null) statement.close();  // Close the statement
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return hoursrWeek;
     }
 
