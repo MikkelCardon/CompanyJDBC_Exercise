@@ -2,6 +2,7 @@ package storage;
 
 import application.model.Company;
 import application.model.Employee;
+import javafx.scene.control.Alert;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class ConnictionToDB {
         ArrayList<Employee> emp = new ArrayList<Employee>();
         try {
             Statement statement = minConnection.createStatement();
-            ResultSet res = statement.executeQuery("SELECT * FROM Employees");
+            ResultSet res = statement.executeQuery("SELECT * FROM Employee");
 
             while(res.next()){
                 int id = res.getInt(1);
@@ -63,7 +64,7 @@ public class ConnictionToDB {
         ArrayList<Employee> ansatte = new ArrayList<Employee>();
        try{
            Statement statement = minConnection.createStatement();
-           ResultSet res = statement.executeQuery("SELECT * FROM Employees WHERE companyID = " + companyid);
+           ResultSet res = statement.executeQuery("SELECT * FROM Employee WHERE companyID = " + companyid);
 
            while(res.next()){
                while(res.next()){
@@ -90,6 +91,8 @@ public class ConnictionToDB {
             statement.executeUpdate("DELETE FROM Company WHERE companyID = " + id);
 
         }catch (SQLException e) {
+            String message = e.getMessage();
+            showExceptionAlert(message);
             throw new RuntimeException(e);
         }
         return "Company id:" + id +". Er blever slettet";
@@ -145,15 +148,21 @@ public class ConnictionToDB {
     }
 
     public static void createCompany(String name, int hours) {
-        Statement statement = null;
+        PreparedStatement preparedStatement = null;
         try{
-            statement = minConnection.createStatement();
-            statement.executeUpdate("INSERT INTO company (navn, timerPrUger) VALUES ("+name+", "+hours+")");
+            String sql = "INSERT INTO company (navn, timerPrUge) VALUES (?,?)";
+            preparedStatement = minConnection.prepareStatement(sql);
+            preparedStatement.clearParameters();
+            preparedStatement.setString(1, name);
+            preparedStatement.setInt(2, hours);
+
+            preparedStatement.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
             try {
-                if (statement != null) statement.close();
+                if (preparedStatement != null) preparedStatement.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -187,16 +196,23 @@ public class ConnictionToDB {
 
 
     public static void updateCompany(String name, int hours, int id){
-        Statement statement = null;
+        PreparedStatement preparedStatement = null;
         try{
-            statement = minConnection.createStatement();
-            statement.executeUpdate("UPDATE company SET navn = " + name +", timerPrUge = "+ hours +" WHERE companyId = " + id);
+            String url = "UPDATE company SET navn = ?, timerPrUge = ? WHERE companyID = ?";
+            preparedStatement = minConnection.prepareStatement(url);
+            preparedStatement.clearParameters();
+
+            preparedStatement.setString(1, name);
+            preparedStatement.setInt(2, hours);
+            preparedStatement.setInt(3, id);
+
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (preparedStatement != null) preparedStatement.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -205,17 +221,24 @@ public class ConnictionToDB {
 
     //ToDo: Tilføj exception hvis compID ikke findes.
     public static void updateEmployee(String name, int wage, int empId, int compID){
-        Statement statement = null;
+        PreparedStatement preparedStatement = null;
         try{
-            statement = minConnection.createStatement();
-                statement.executeUpdate("UPDATE employee SET navn = " + name +", loen = "+ wage +", companyID = "+ compID +" WHERE employeeId = " + empId);
+            String sql = "UPDATE employee SET navn = ?, loen = ?, companyID = ? WHERE employeeId = ?";
+            preparedStatement = minConnection.prepareStatement(sql);
+            preparedStatement.clearParameters();
 
+            preparedStatement.setString(1, name);
+            preparedStatement.setInt(2, wage);
+            preparedStatement.setInt(3, compID);
+            preparedStatement.setInt(4, empId);
+
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             try {
-                if (statement != null) statement.close();
+                if (preparedStatement != null) preparedStatement.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -248,5 +271,12 @@ public class ConnictionToDB {
 
     public static void removeEmployee(Employee emp) {
         //TODO
+    }
+
+
+    public static void showExceptionAlert(String message){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(message);
+        alert.showAndWait();
     }
 }
